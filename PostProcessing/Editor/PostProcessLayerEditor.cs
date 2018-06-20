@@ -33,6 +33,10 @@ namespace UnityEditor.Rendering.PostProcessing
         SerializedProperty m_ShowToolkit;
         SerializedProperty m_ShowCustomSorter;
 
+//custom-begin: autofocus
+        SerializedProperty m_DepthOfFieldAutoFocus;
+//custom-end
+
         Dictionary<PostProcessEvent, ReorderableList> m_CustomLists;
 
         static GUIContent[] s_AntialiasingMethodNames =
@@ -71,6 +75,10 @@ namespace UnityEditor.Rendering.PostProcessing
 
             m_ShowToolkit = serializedObject.FindProperty("m_ShowToolkit");
             m_ShowCustomSorter = serializedObject.FindProperty("m_ShowCustomSorter");
+
+//custom-begin: autofocus
+            m_DepthOfFieldAutoFocus = serializedObject.FindProperty("depthOfFieldAutoFocus");
+//custom-end
         }
 
         void OnDisable()
@@ -95,6 +103,14 @@ namespace UnityEditor.Rendering.PostProcessing
 
             EditorGUILayout.PropertyField(m_StopNaNPropagation, EditorUtilities.GetContent("Stop NaN Propagation|Automatically replaces NaN/Inf in shaders by a black pixel to avoid breaking some effects. This will slightly affect performances and should only be used if you experience NaN issues that you can't fix. Has no effect on GLES2 platforms."));
             EditorGUILayout.Space();
+
+//custom-begin: autofocus
+            EditorGUILayout.LabelField(EditorUtilities.GetContent("Depth Of Field"), EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+            EditorGUILayout.PropertyField(m_DepthOfFieldAutoFocus, EditorUtilities.GetContent("Auto Focus|Depth Of Field Auto Focus component reference"));
+            EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
+//custom-end
 
             DoToolkit();
             DoCustomEffectSorter();

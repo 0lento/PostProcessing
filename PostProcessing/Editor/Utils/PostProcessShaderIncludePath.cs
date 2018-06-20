@@ -11,6 +11,9 @@ namespace UnityEditor.Experimental.Rendering
 #endif
         public static string[] GetPaths()
         {
+//forest-begin:
+			return new[] { "Assets/_LocalPackages/botd.com.unity.postprocessing" };
+#if false
             var srpMarker = Directory.GetFiles(Application.dataPath, "POSTFXMARKER", SearchOption.AllDirectories).FirstOrDefault();
             var paths = new string[srpMarker == null ? 1 : 2];
             var index = 0;
@@ -21,6 +24,8 @@ namespace UnityEditor.Experimental.Rendering
             }
             paths[index] = Path.GetFullPath("Packages/com.unity.postprocessing");
             return paths;
+#endif
+//forest-end:
         }
     }
 }

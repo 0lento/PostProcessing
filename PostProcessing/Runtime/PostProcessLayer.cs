@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Assertions;
@@ -10,6 +10,12 @@ namespace UnityEngine.Rendering.PostProcessing
 #elif UNITY_5_6_OR_NEWER
     using XRSettings = UnityEngine.VR.VRSettings;
 #endif
+
+//custom-begin: autofocus
+    public interface IDepthOfFieldAutoFocus {
+        void SetUpAutoFocusParams(CommandBuffer cmd, float focalLength /*in meters*/, float filmHeight, Camera cam, bool resetHistory);
+    }
+//custom-end
 
     // TODO: XMLDoc everything (?)
     [DisallowMultipleComponent, ExecuteInEditMode, ImageEffectAllowedInSceneView]
@@ -42,6 +48,10 @@ namespace UnityEngine.Rendering.PostProcessing
 
         [SerializeField]
         PostProcessResources m_Resources;
+
+//custom-begin: autofocus
+        public Object depthOfFieldAutoFocus;
+//custom-end
 
         // UI states
         [SerializeField] bool m_ShowToolkit;
@@ -279,7 +289,9 @@ namespace UnityEngine.Rendering.PostProcessing
             m_Camera.ResetProjectionMatrix();
             m_Camera.nonJitteredProjectionMatrix = m_Camera.projectionMatrix;
 
-#if !UNITY_SWITCH
+            //forest-begin: Added XboxOne to define around XR code
+#if !UNITY_SWITCH && !UNITY_XBOXONE
+            //forest-end:
             if (m_Camera.stereoEnabled)
             {
                 m_Camera.ResetStereoProjectionMatrices();
@@ -476,11 +488,22 @@ namespace UnityEngine.Rendering.PostProcessing
 
         public void BakeMSVOMap(CommandBuffer cmd, Camera camera, RenderTargetIdentifier destination, RenderTargetIdentifier? depthMap, bool invert)
         {
+//forest-begin
+            BakeMSVOMap(cmd, cmd, cmd, camera, destination, depthMap, invert);
+//forest-end:
+        }
+
+//forest-begin use three command buffers for BakeMSVOMap two for managing temporary RT's and one for doing the compute work
+        public void BakeMSVOMap(CommandBuffer prepCmd, CommandBuffer renderCmd, CommandBuffer postCmd, Camera camera, RenderTargetIdentifier destination, RenderTargetIdentifier? depthMap, bool invert)
+        {
             var bundle = GetBundle<AmbientOcclusion>();
             var renderer = bundle.CastRenderer<AmbientOcclusionRenderer>().GetMultiScaleVO();
             renderer.SetResources(m_Resources);
-            renderer.GenerateAOMap(cmd, camera, destination, depthMap, invert);
+            renderer.PreGenerateAOMap(prepCmd, camera);
+            renderer.GenerateAOMap(renderCmd, camera, destination, depthMap, invert);
+            renderer.PostGenerateAOMap(postCmd);
         }
+//forest-end:
 
         internal void OverrideSettings(List<PostProcessEffectSettings> baseSettings, float interpFactor)
         {
@@ -569,6 +592,9 @@ namespace UnityEngine.Rendering.PostProcessing
             context.antialiasing = antialiasingMode;
             context.temporalAntialiasing = temporalAntialiasing;
             context.logHistogram = m_LogHistogram;
+//custom-begin: autofocus
+            context.depthOfFieldAutoFocus = depthOfFieldAutoFocus as IDepthOfFieldAutoFocus;
+//custom-end
             SetLegacyCameraFlags(context);
 
             // Prepare debug overlay

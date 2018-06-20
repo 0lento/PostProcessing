@@ -157,11 +157,20 @@ namespace UnityEngine.Rendering.PostProcessing
             }
         }
 
+//custom-begin: malte: hide collider gizmos
+        public bool hideColliderGizmos { get; set; }
+//custom-end
+
         // TODO: Look into a better volume previsualization system
         void OnDrawGizmos()
         {
             var colliders = m_TempColliders;
             GetComponents(colliders);
+
+//custom-begin: malte: hide collider gizmos
+            if (hideColliderGizmos)
+                return;
+//custom-end
 
             if (isGlobal || colliders == null)
                 return;

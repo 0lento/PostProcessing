@@ -140,8 +140,9 @@ namespace UnityEngine.Rendering.PostProcessing
         {
             return new Vector3(m_Widths[(int)mip], m_Heights[(int)mip], 16);
         }
-
-        public void GenerateAOMap(CommandBuffer cmd, Camera camera, RenderTargetIdentifier destination, RenderTargetIdentifier? depthMap, bool invert)
+   
+//forest-begin Split GenerateAOMap into three functions with two of them managing the temporary RT's
+        public void PreGenerateAOMap(CommandBuffer cmd, Camera camera)
         {
             // Base size
             m_Widths[0] = camera.pixelWidth * (RuntimeUtilities.isSinglePassStereoEnabled ? 2 : 1);
@@ -155,9 +156,19 @@ namespace UnityEngine.Rendering.PostProcessing
                 m_Heights[i] = (m_Heights[0] + (div - 1)) / div;
             }
 
-            // Allocate temporary textures
+             // Allocate temporary textures
             PushAllocCommands(cmd);
+        }
 
+        public void PostGenerateAOMap(CommandBuffer cmd)
+        {
+             // Allocate temporary textures
+            PushReleaseCommands(cmd);
+        }
+
+        public void GenerateAOMap(CommandBuffer cmd, Camera camera, RenderTargetIdentifier destination, RenderTargetIdentifier? depthMap, bool invert)
+        {
+ 
             // Render logic
             PushDownsampleCommands(cmd, camera, depthMap);
 
@@ -171,10 +182,8 @@ namespace UnityEngine.Rendering.PostProcessing
             PushUpsampleCommands(cmd, ShaderIDs.LowDepth3, ShaderIDs.Combined3,  ShaderIDs.LowDepth2,   ShaderIDs.Occlusion2, ShaderIDs.Combined2, GetSize(MipLevel.L3), GetSize(MipLevel.L2));
             PushUpsampleCommands(cmd, ShaderIDs.LowDepth2, ShaderIDs.Combined2,  ShaderIDs.LowDepth1,   ShaderIDs.Occlusion1, ShaderIDs.Combined1, GetSize(MipLevel.L2), GetSize(MipLevel.L1));
             PushUpsampleCommands(cmd, ShaderIDs.LowDepth1, ShaderIDs.Combined1,  ShaderIDs.LinearDepth, null,                 destination,         GetSize(MipLevel.L1), GetSize(MipLevel.Original), invert);
-
-            // Cleanup
-            PushReleaseCommands(cmd);
         }
+//forest-end:
 
         void PushAllocCommands(CommandBuffer cmd)
         {
