@@ -150,6 +150,11 @@ namespace UnityEngine.Rendering.PostProcessing
             var cmd = context.command;
             cmd.BeginSample("DepthOfField");
 
+//custom-begin: autofocus
+            if (context.depthOfFieldAutoFocus != null)
+                context.depthOfFieldAutoFocus.SetUpAutoFocusParams(cmd, f, k_FilmHeight, context.camera, m_ResetHistory);
+//custom-end
+
             // CoC calculation pass
             context.GetScreenSpaceTemporaryRT(cmd, ShaderIDs.CoCTex, 0, cocFormat, RenderTextureReadWrite.Linear);
             cmd.BlitFullscreenTriangle(BuiltinRenderTextureType.None, ShaderIDs.CoCTex, sheet, (int)Pass.CoCCalculation);

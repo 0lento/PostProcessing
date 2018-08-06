@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace UnityEngine.Rendering.PostProcessing
 {
@@ -23,7 +23,9 @@ namespace UnityEngine.Rendering.PostProcessing
             {
                 m_Camera = value;
 
-#if !UNITY_SWITCH
+//forest-begin: Added XboxOne to define around XR code
+#if !UNITY_SWITCH && !UNITY_XBOXONE
+//forest-end:
                 if (m_Camera.stereoEnabled)
                 {
 #if UNITY_2017_2_OR_NEWER
@@ -126,6 +128,10 @@ namespace UnityEngine.Rendering.PostProcessing
         // to do temporal reprojection (see: Depth of Field)
         public TemporalAntialiasing temporalAntialiasing { get; internal set; }
 
+//custom-begin: autofocus
+        public IDepthOfFieldAutoFocus depthOfFieldAutoFocus { get; internal set; }
+//custom-end
+
         // Internal values used for builtin effects
         // Beware, these may not have been set before a specific builtin effect has been executed
         internal PropertySheet uberSheet;
@@ -162,6 +168,10 @@ namespace UnityEngine.Rendering.PostProcessing
             isSceneView = false;
             antialiasing = PostProcessLayer.Antialiasing.None;
             temporalAntialiasing = null;
+
+//custom-begin: autofocus
+            depthOfFieldAutoFocus = null;
+//custom-end
 
             uberSheet = null;
             autoExposureTexture = null;

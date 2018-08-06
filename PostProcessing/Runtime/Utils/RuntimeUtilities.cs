@@ -144,8 +144,8 @@ namespace UnityEngine.Rendering.PostProcessing
                 }
 
                 var format = TextureFormat.RGBAHalf;
-                if (!format.IsSupported())
-                    format = TextureFormat.ARGB32;
+//                if (!format.IsSupported())
+//                    format = TextureFormat.ARGB32;
                     
                 texture = new Texture2D(size * size, size, format, false, true)
                 {
@@ -402,7 +402,9 @@ namespace UnityEngine.Rendering.PostProcessing
             {
 #if UNITY_EDITOR
                 return isSinglePassStereoSelected && Application.isPlaying;
-#elif UNITY_SWITCH
+//forest-begin: Added XboxOne to define around XR code
+#elif UNITY_XBOXONE || UNITY_SWITCH 
+//forest-end:
                 return false;
 #elif UNITY_2017_2_OR_NEWER
                 return UnityEngine.XR.XRSettings.eyeTextureDesc.vrUsage == VRTextureUsage.TwoEyes;
@@ -418,7 +420,9 @@ namespace UnityEngine.Rendering.PostProcessing
             {
 #if UNITY_EDITOR
                 return UnityEditor.PlayerSettings.virtualRealitySupported;
+//forest-begin: Added XboxOne to define around XR code
 #elif UNITY_XBOXONE || UNITY_SWITCH
+//forest-end:
                 return false;
 #elif UNITY_2017_2_OR_NEWER
                 return UnityEngine.XR.XRSettings.enabled;
@@ -444,12 +448,14 @@ namespace UnityEngine.Rendering.PostProcessing
                 if (target != BuildTarget.Android && target != BuildTarget.iOS && target != BuildTarget.tvOS && target != BuildTarget.Switch)
                     return RenderTextureFormat.DefaultHDR;
 #   endif // UNITY_EDITOR
-                if (format.IsSupported())
+//                if (format.IsSupported())
                     return format;
 #endif // UNITY_ANDROID || UNITY_IPHONE || UNITY_TVOS || UNITY_SWITCH || UNITY_EDITOR
-                return RenderTextureFormat.DefaultHDR;
-            }
-        }
+#if !UNITY_EDITOR
+				return RenderTextureFormat.DefaultHDR;
+#endif
+			}
+		}
 
         public static bool isFloatingPointFormat(RenderTextureFormat format)
         {

@@ -12,7 +12,10 @@ Shader "Hidden/PostProcessing/DepthOfField"
             Name "CoC Calculation"
 
             HLSLPROGRAM
-                #pragma target 3.5
+//custom-begin: autofocus
+                #pragma multi_compile __ AUTO_FOCUS
+                #pragma target 5.0
+//custom-end
                 #pragma vertex VertDefault
                 #pragma fragment FragCoC
                 #include "DepthOfField.hlsl"

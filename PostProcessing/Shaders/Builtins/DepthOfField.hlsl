@@ -17,8 +17,28 @@ TEXTURE2D_SAMPLER2D(_DepthOfFieldTex, sampler_DepthOfFieldTex);
 float4 _DepthOfFieldTex_TexelSize;
 
 // Camera parameters
+//custom-begin: autofocus
+#if AUTO_FOCUS
+    struct AutoFocusOutput
+    {
+        float focusDistance;
+        float lensCoeff;
+    };
+    StructuredBuffer<AutoFocusOutput> _AutoFocusOutput : register(t3);
+
+    float2 GetFocusDistanceAndLensCoeff()
+    {
+        return float2(_AutoFocusOutput[0].focusDistance, _AutoFocusOutput[0].lensCoeff);
+    }
+#else
 float _Distance;
 float _LensCoeff;  // f^2 / (N * (S1 - f) * film_width * 2)
+    float2 GetFocusDistanceAndLensCoeff()
+    {
+        return float2(_Distance, _LensCoeff);
+    }
+#endif
+//custom-end
 float _MaxCoC;
 float _RcpMaxCoC;
 float _RcpAspect;
@@ -28,7 +48,10 @@ half3 _TaaParams; // Jitter.x, Jitter.y, Blending
 half4 FragCoC(VaryingsDefault i) : SV_Target
 {
     float depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, i.texcoordStereo));
-    half coc = (depth - _Distance) * _LensCoeff / max(depth, 1e-5);
+//custom-begin: autofocus
+    float2 distAndLensCoeff = GetFocusDistanceAndLensCoeff();
+    half coc = (depth - distAndLensCoeff.x) * distAndLensCoeff.y / max(depth, 1e-5);
+//custom-end
     return saturate(coc * 0.5 * _RcpMaxCoC + 0.5);
 }
 
@@ -250,7 +273,10 @@ half4 FragDebugOverlay(VaryingsDefault i) : SV_Target
     // Calculate the radiuses of CoC.
     half4 src = SAMPLE_TEXTURE2D(_DepthOfFieldTex, sampler_DepthOfFieldTex, i.texcoordStereo);
     float depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, i.texcoordStereo));
-    float coc = (depth - _Distance) * _LensCoeff / depth;
+//custom-begin: autofocus
+    float2 distAndLensCoeff = GetFocusDistanceAndLensCoeff();
+    float coc = (depth - distAndLensCoeff.x) * distAndLensCoeff.y / max(depth, 1e-5);
+//custom-end
     coc *= 80;
 
     // Visualize CoC (white -> red -> gray)
