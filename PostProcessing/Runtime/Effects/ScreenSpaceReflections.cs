@@ -46,9 +46,16 @@ namespace UnityEngine.Rendering.PostProcessing
         [Range(0f, 1f), Tooltip("Fades reflections close to the screen edges.")]
         public FloatParameter vignette = new FloatParameter { value = 0.5f };
 
+        // sample-game begin: added globalEnable
+        public static bool globalEnable = true;
+        // sample-game end:
+
         public override bool IsEnabledAndSupported(PostProcessRenderContext context)
         {
+        // sample-game begin: added globalEnable
             return enabled
+                && globalEnable
+        // sample-game end:
                 && context.camera.actualRenderingPath == RenderingPath.DeferredShading
                 && SystemInfo.supportsMotionVectors
                 && SystemInfo.supportsComputeShaders

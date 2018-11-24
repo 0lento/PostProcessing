@@ -64,13 +64,20 @@ namespace UnityEngine.Rendering.PostProcessing
         [Tooltip("Number of sample points, which affects quality and performance. Lowest, Low & Medium passes are downsampled. High and Ultra are not and should only be used on high-end hardware.")]
         public AmbientOcclusionQualityParameter quality = new AmbientOcclusionQualityParameter { value = AmbientOcclusionQuality.Medium };
 
+        // sample-game begin: added globalEnable
+        public static bool globalEnable = true;
+        // sample-game end
+
         // SRPs can call this method without a context set (see HDRP)
         // We need a better way to handle this than checking for a null context, context should
         // never be null.
         public override bool IsEnabledAndSupported(PostProcessRenderContext context)
         {
+        // sample-game begin: added globalEnable
             bool state = enabled.value
+                && globalEnable
                 && intensity.value > 0f;
+        // sample-game end
 
             if (mode.value == AmbientOcclusionMode.ScalableAmbientObscurance)
             {

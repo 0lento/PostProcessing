@@ -18,10 +18,17 @@ namespace UnityEngine.Rendering.PostProcessing
         [Range(0f, 1f), DisplayName("Luminance Contribution"), Tooltip("Controls the noisiness response curve based on scene luminance. Lower values mean less noise in dark areas.")]
         public FloatParameter lumContrib = new FloatParameter { value = 0.8f };
 
+        // sample-game begin: added globalEnable
+        public static bool globalEnable = true;
+        // sample-game end:
+
         public override bool IsEnabledAndSupported(PostProcessRenderContext context)
         {
+        // sample-game begin: added globalEnable
             return enabled.value
+                && globalEnable
                 && intensity.value > 0f;
+        // sample-game end:
         }
     }
 

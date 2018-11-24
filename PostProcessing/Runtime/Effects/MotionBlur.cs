@@ -12,10 +12,17 @@ namespace UnityEngine.Rendering.PostProcessing
         [Range(4, 32), Tooltip("The amount of sample points, which affects quality and performances.")]
         public IntParameter sampleCount = new IntParameter { value = 10 };
 
+        // sample-game begin: added globalEnable
+        public static bool globalEnable = true;
+        // sample-game end:
+
         public override bool IsEnabledAndSupported(PostProcessRenderContext context)
         {
+        // sample-game begin: added globalEnable
             return enabled.value
                 && shutterAngle.value > 0f
+                && globalEnable
+        // sample-game end:
             #if UNITY_EDITOR
                 // Don't render motion blur preview when the editor is not playing as it can in some
                 // cases results in ugly artifacts (i.e. when resizing the game view).

@@ -131,6 +131,10 @@ namespace UnityEngine.Rendering.PostProcessing
         [DisplayName("Gain"), Tooltip("Controls the lightest portions of the render."), Trackball(TrackballAttribute.Mode.Gain)]
         public Vector4Parameter gain = new Vector4Parameter { value = new Vector4(1f, 1f, 1f, 0f) };
 
+        // sample-game begin: added globalGamma
+        public static float globalGamma = 1.0f;
+        // sample-game end:
+
         public SplineParameter masterCurve   = new SplineParameter { value = new Spline(new AnimationCurve(new Keyframe(0f, 0f, 1f, 1f), new Keyframe(1f, 1f, 1f, 1f)), 0f, false, new Vector2(0f, 1f)) };
         public SplineParameter redCurve      = new SplineParameter { value = new Spline(new AnimationCurve(new Keyframe(0f, 0f, 1f, 1f), new Keyframe(1f, 1f, 1f, 1f)), 0f, false, new Vector2(0f, 1f)) };
         public SplineParameter greenCurve    = new SplineParameter { value = new Spline(new AnimationCurve(new Keyframe(0f, 0f, 1f, 1f), new Keyframe(1f, 1f, 1f, 1f)), 0f, false, new Vector2(0f, 1f)) };
@@ -260,6 +264,11 @@ namespace UnityEngine.Rendering.PostProcessing
                 var lift = ColorUtilities.ColorToLift(settings.lift.value * 0.2f);
                 var gain = ColorUtilities.ColorToGain(settings.gain.value * 0.8f);
                 var invgamma = ColorUtilities.ColorToInverseGamma(settings.gamma.value * 0.8f);
+
+                // sample-game begin: apply globalGamma
+                invgamma.Scale(Vector3.one * ColorGrading.globalGamma);
+                // sample-game end
+
                 cmd.SetComputeVectorParam(compute, "_Lift", new Vector4(lift.x, lift.y, lift.z, 0f));
                 cmd.SetComputeVectorParam(compute, "_InvGamma", new Vector4(invgamma.x, invgamma.y, invgamma.z, 0f));
                 cmd.SetComputeVectorParam(compute, "_Gain", new Vector4(gain.x, gain.y, gain.z, 0f));

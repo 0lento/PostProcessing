@@ -46,10 +46,17 @@ namespace UnityEngine.Rendering.PostProcessing
         [Min(0f), Tooltip("Amount of dirtiness."), DisplayName("Intensity")]
         public FloatParameter dirtIntensity = new FloatParameter { value = 0f };
 
+        // sample-game begin: added globalEnable
+        public static bool globalEnable = true;
+        // sample-game end:
+
         public override bool IsEnabledAndSupported(PostProcessRenderContext context)
         {
+        // sample-game begin: added globalEnable
             return enabled.value
+                && globalEnable
                 && intensity.value > 0f;
+        // sample-game end:
         }
     }
 
